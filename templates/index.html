@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Rumor Propagation Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Animated background grid -->
+<div class="bg-grid"></div>
+<div class="scanline"></div>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="16" stroke="#38bdf8" stroke-width="1.5"/><circle cx="18" cy="18" r="8" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3 2"/><circle cx="18" cy="18" r="3" fill="#38bdf8"/><line x1="18" y1="2" x2="18" y2="34" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="4 3"/><line x1="2" y1="18" x2="34" y2="18" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="4 3"/></svg>
+      </div>
+      <div>
+        <div class="logo-title">RUMOR PROPAGATION AI</div>
+        <div class="logo-sub">Real-Time Misinformation Detection System</div>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" onclick="showSection('fact-check')">FACT CHECK</button>
+      <button class="nav-btn" onclick="showSection('simulator')">SIMULATOR</button>
+      <button class="nav-btn" onclick="showSection('news-feed')">LIVE NEWS</button>
+    </nav>
+    <div class="header-status">
+      <span class="pulse-dot"></span>
+      <span class="status-text">SYSTEM ONLINE</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main>
+
+<!-- ─── FACT CHECK SECTION ──────────────────────────────────────────────── -->
+<section id="fact-check" class="section active">
+  <div class="section-header-bar">
+    <h2><span class="accent">//</span> LIVE AI FACT-CHECKING ENGINE</h2>
+    <p>Cross-references 30+ global RSS feeds across 6 regions + Wikipedia encyclopedic database</p>
+  </div>
+
+  <div class="fc-layout">
+    <!-- Input Panel -->
+    <div class="panel input-panel">
+      <div class="panel-label">INPUT CLAIM</div>
+      <div class="input-row">
+        <textarea id="claim-input" placeholder="Enter any news headline, rumor, or claim to verify..." rows="3"></textarea>
+      </div>
+      <div class="input-actions">
+        <button class="btn-ghost" onclick="loadExample()">⚡ LOAD EXAMPLE</button>
+        <button class="btn-primary" onclick="runFactCheck()" id="check-btn">
+          <span class="btn-icon">◈</span> ANALYZE CLAIM
+        </button>
+      </div>
+      <div class="example-chips">
+        <div class="chip-label">QUICK EXAMPLES:</div>
+        <button class="chip" onclick="setExample('Israel and Hezbollah traded fire')">Israel-Hezbollah conflict</button>
+        <button class="chip" onclick="setExample('The 1969 moon landing was faked')">Moon landing hoax</button>
+        <button class="chip" onclick="setExample('Albert Einstein won Nobel Prize in Physics')">Einstein Nobel Prize</button>
+        <button class="chip" onclick="setExample('5G towers spread coronavirus')">5G conspiracy</button>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="panel results-panel" id="results-panel" style="display:none">
+      <div class="panel-label">ANALYSIS RESULT</div>
+      
+      <div id="verdict-box" class="verdict-box">
+        <div class="verdict-icon" id="verdict-icon"></div>
+        <div class="verdict-text">
+          <div class="verdict-label" id="verdict-label"></div>
+          <div class="confidence-bar-wrap">
+            <div class="conf-label">CONFIDENCE</div>
+            <div class="confidence-bar"><div class="confidence-fill" id="conf-fill"></div></div>
+            <div class="conf-pct" id="conf-pct"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score breakdown -->
+      <div class="score-grid" id="score-grid"></div>
+
+      <!-- AI Summary -->
+      <div class="ai-summary-box" id="ai-summary-box" style="display:none">
+        <div class="ai-summary-header">
+          <span class="ai-sparkle">✨</span> AI SMART SUMMARY (Real-Time)
+        </div>
+        <div id="ai-summary-text" class="ai-summary-text"></div>
+        <div id="translation-info" class="translation-info"></div>
+      </div>
+
+      <!-- Evidence -->
+      <div class="evidence-box">
+        <div class="ev-label">EVIDENCE SUMMARY</div>
+        <div id="evidence-text"></div>
+      </div>
+
+      <!-- Simulator bridge -->
+      <div class="sim-bridge">
+        <div class="bridge-label">▸ PROPAGATION SIMULATION</div>
+        <p>Send this story to the Epidemic Simulator to model how it spreads across a social network.</p>
+        <button class="btn-primary" onclick="sendToSimulator()">▶ SIMULATE SPREAD</button>
+        <button class="btn-ghost" onclick="exportPDF()" style="margin-left:8px">⬇ EXPORT PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sources & Regional Map -->
+  <div id="sources-section" style="display:none">
+    <div class="two-col">
+      <!-- Sources List -->
+      <div class="panel">
+        <div class="panel-label">VERIFIED SOURCES (<span id="src-count">0</span>)</div>
+        <div id="sources-list" class="sources-list"></div>
+      </div>
+
+      <!-- Regional Map -->
+      <div class="panel">
+        <div class="panel-label">GLOBAL COVERAGE MAP</div>
+        <div id="regional-map" class="regional-map"></div>
+        <div id="region-bars" class="region-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="fc-loading" class="loading-overlay" style="display:none">
+    <div class="loading-inner">
+      <div class="loading-ring"></div>
+      <div class="loading-text">SCANNING GLOBAL DATABASES</div>
+      <div class="loading-steps" id="loading-steps"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SIMULATOR SECTION ─────────────────────────────────────────────────── -->
+<section id="simulator" class="section">
+  <div class="section-header-bar">
+    <h2><span class="accent">//</span> EPIDEMIC RUMOR PROPAGATION SIMULATOR</h2>
+    <p id="sim-topic-label">Configure parameters and start the simulation</p>
+  </div>
+
+  <div class="sim-layout">
+    <!-- Controls -->
+    <div class="sim-controls panel">
+      <div class="panel-label">NETWORK SETTINGS</div>
+
+      <div class="ctrl-group">
+        <label>NODES <span class="ctrl-val" id="nodes-val">300</span></label>
+        <input type="range" id="n-nodes" min="50" max="400" value="300" oninput="document.getElementById('nodes-val').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>TOPOLOGY</label>
+        <select id="net-type">
+          <option>Scale-Free (BA)</option>
+          <option>Small-World (WS)</option>
+          <option>Random (ER)</option>
+        </select>
+      </div>
+
+      <div class="panel-label" style="margin-top:16px">EPIDEMIC PARAMETERS</div>
+      <div class="ctrl-group">
+        <label>SPREAD RATE β <span class="ctrl-val" id="beta-val">0.15</span></label>
+        <input type="range" id="beta" min="0" max="1" step="0.01" value="0.15" oninput="document.getElementById('beta-val').textContent=parseFloat(this.value).toFixed(2)">
+      </div>
+      <div class="ctrl-group">
+        <label>RECOVERY γ <span class="ctrl-val" id="gamma-val">0.05</span></label>
+        <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.05" oninput="document.getElementById('gamma-val').textContent=parseFloat(this.value).toFixed(2)">
+      </div>
+      <div class="ctrl-group">
+        <label>TRUTH SPREAD <span class="ctrl-val" id="truth-val">0.20</span></label>
+        <input type="range" id="beta-truth" min="0" max="1" step="0.01" value="0.20" oninput="document.getElementById('truth-val').textContent=parseFloat(this.value).toFixed(2)">
+      </div>
+
+      <div class="panel-label" style="margin-top:16px">COUNTER-STRATEGY</div>
+      <div class="ctrl-group">
+        <select id="strategy">
+          <option>None</option>
+          <option>Mass Immunization</option>
+          <option>Influencer Correction (Degree)</option>
+          <option>Edge Removal (Quarantine)</option>
+          <option>Inject Truth Campaign (Multi-Agent)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>INTERVENE AT STEP <span class="ctrl-val" id="step-val">15</span></label>
+        <input type="range" id="intervene-step" min="1" max="50" value="15" oninput="document.getElementById('step-val').textContent=this.value">
+      </div>
+      <div class="ctrl-group">
+        <label>SPEED <span class="ctrl-val" id="speed-val">10</span> FPS</label>
+        <input type="range" id="sim-speed" min="1" max="20" value="10" oninput="document.getElementById('speed-val').textContent=this.value">
+      </div>
+
+      <div class="sim-btn-row">
+        <button class="btn-primary full-w" onclick="generateNetwork()" id="gen-btn">⟳ GENERATE NETWORK</button>
+        <button class="btn-accent full-w" onclick="toggleSimulation()" id="start-btn" disabled>▶ START SIMULATION</button>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-panel" id="metrics-panel">
+        <div class="metric-row"><span class="met-label">⬤ STEP</span><span class="met-val" id="m-step">0</span></div>
+        <div class="metric-row"><span class="met-label" style="color:#ef4444">⬤ INFECTED</span><span class="met-val" id="m-inf">0</span></div>
+        <div class="metric-row"><span class="met-label" style="color:#10b981">⬤ RECOVERED</span><span class="met-val" id="m-rec">0</span></div>
+        <div class="metric-row"><span class="met-label" style="color:#3b82f6">⬤ IMMUNIZED</span><span class="met-val" id="m-imm">0</span></div>
+        <div class="metric-row"><span class="met-label" style="color:#6b7280">⬤ SUSCEPTIBLE</span><span class="met-val" id="m-sus">0</span></div>
+      </div>
+    </div>
+
+    <!-- Network Canvas -->
+    <div class="sim-main">
+      <div class="panel canvas-panel">
+        <canvas id="network-canvas"></canvas>
+        <div class="canvas-placeholder" id="canvas-placeholder">
+          <div>Click <strong>GENERATE NETWORK</strong> to create topology</div>
+        </div>
+      </div>
+
+      <!-- Propagation chart -->
+      <div class="panel chart-panel">
+        <div class="panel-label">PROPAGATION CURVES</div>
+        <canvas id="prop-chart" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEWS FEED SECTION ─────────────────────────────────────────────────── -->
+<section id="news-feed" class="section">
+  <div class="section-header-bar">
+    <h2><span class="accent">//</span> LIVE GLOBAL NEWS FEED</h2>
+    <p>Real-time headlines from verified sources worldwide. Click any article to open in new tab.</p>
+  </div>
+
+  <div class="news-actions">
+    <button class="btn-primary" onclick="loadNews()">⟳ REFRESH FEED</button>
+    <div class="news-tabs">
+      <button class="news-tab active" onclick="switchNewsTab('india', this)">🇮🇳 INDIA</button>
+      <button class="news-tab" onclick="switchNewsTab('world', this)">🌐 WORLD</button>
+    </div>
+  </div>
+
+  <div id="news-container" class="news-grid"></div>
+  <div id="news-loading" class="loading-overlay" style="display:none">
+    <div class="loading-inner"><div class="loading-ring"></div><div class="loading-text">FETCHING LIVE FEEDS</div></div>
+  </div>
+</section>
+
+</main>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
